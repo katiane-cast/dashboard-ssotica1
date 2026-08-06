@@ -851,7 +851,7 @@ tbody td { padding: 10px 14px; vertical-align: middle; }
         <th onclick="srt('req','Status')">Status <span class="si">↕</span></th>
         <th>Sprint</th>
         <th onclick="srt('req','Solicitante')">Solicitante <span class="si">↕</span></th>
-        <th>Entrega Requisito</th>
+        <th>Data Requisito</th>
       </tr></thead>
       <tbody id="tb-req"><tr class="loading-row"><td colspan="7"><span class="spin"></span>Carregando...</td></tr></tbody>
     </table></div>
@@ -1094,9 +1094,9 @@ function clearReqMonth(){reqMonthFilter=null;const cb=document.getElementById('c
 function buildReqMes(data,year){
   const m=Array(12).fill(0);
   data.forEach(r=>{
-    const ep=r['Entrega em Produção']||'';
-    if(!ep||ep.toLowerCase().includes('definir'))return;
-    const p=ep.split('/');
+    const req=(r['Requisito']||'').trim();
+    if(!req||req.toLowerCase().includes('requisito'))return;
+    const p=req.split('/');
     if(p.length>=2){
       const mes=parseInt(p[1])-1;
       if(mes<0||mes>11)return;
@@ -1383,14 +1383,14 @@ function getReqF(){
   const fSp=document.getElementById('r-fSp').value,fS=document.getElementById('r-fS').value;
   const fSol=document.getElementById('r-fSol').value,fQ=document.getElementById('r-fQ').value.toLowerCase();
   return allData.filter(r=>{
+    const req=(r['Requisito']||'').trim();
+    if(!req||req.toLowerCase().includes('requisito'))return false;
     if(fSp&&r['Sprint']!==fSp)return false;
     if(fS&&r['Status']!==fS)return false;
     if(fSol&&r['Solicitante']!==fSol)return false;
     if(fQ){const h=[r['Demanda / Tarefa / Projeto'],r['Jira'],r['Solicitante']].join(' ').toLowerCase();if(!h.includes(fQ))return false;}
     if(reqMonthFilter!==null&&reqMonthFilter!==undefined){
-      const ep=r['Entrega em Produção']||'';
-      if(!ep||ep.toLowerCase().includes('definir'))return false;
-      const p=ep.split('/');if(p.length<2)return false;
+      const p=req.split('/');if(p.length<2)return false;
       const m=parseInt(p[1])-1;if(m!==reqMonthFilter)return false;
       if(reqYearFilter&&reqYearFilter!=='all'&&p.length>=3){const a=parseInt(p[2]);const ay=a>100?a:2000+a;if(String(ay)!==reqYearFilter)return false;}
     }
@@ -1846,7 +1846,7 @@ function updateP3(data){
   const dk='Demanda / Tarefa / Projeto';
   document.getElementById('rc-req')&&(document.getElementById('rc-req').textContent=`${data.length} itens`);
   _cacheReq=[];
-  document.getElementById('tb-req').innerHTML=data.length?data.map(r=>{const _ir=_cacheReq.push(r)-1;return `<tr onclick="_openReqFromCache(${_ir})" style="cursor:pointer"><td><a class="jira-link" href="https://ipedigital.atlassian.net/browse/${r['Jira']||''}" target="_blank" onclick="event.stopPropagation()">${r['Jira']||'—'}</a></td><td style="font-size:11px;color:var(--text3)">${r['Ano']||'—'}</td><td><span class="trunc">${r[dk]||'—'}</span></td><td>${sBadge(r['Status'])}</td><td style="font-size:11px">${r['Sprint']||'—'}</td><td><span class="trunc">${r['Solicitante']||'—'}</span></td><td style="font-size:11px;white-space:nowrap;color:var(--text2)">${r['Entrega em Produção']||'—'}</td></tr>`;}).join(''):'<tr><td colspan="7" class="empty">Nenhuma demanda encontrada</td></tr>';
+  document.getElementById('tb-req').innerHTML=data.length?data.map(r=>{const _ir=_cacheReq.push(r)-1;return `<tr onclick="_openReqFromCache(${_ir})" style="cursor:pointer"><td><a class="jira-link" href="https://ipedigital.atlassian.net/browse/${r['Jira']||''}" target="_blank" onclick="event.stopPropagation()">${r['Jira']||'—'}</a></td><td style="font-size:11px;color:var(--text3)">${r['Ano']||'—'}</td><td><span class="trunc">${r[dk]||'—'}</span></td><td>${sBadge(r['Status'])}</td><td style="font-size:11px">${r['Sprint']||'—'}</td><td><span class="trunc">${r['Solicitante']||'—'}</span></td><td style="font-size:11px;white-space:nowrap;color:var(--text2)">${r['Requisito']||'—'}</td></tr>`;}).join(''):'<tr><td colspan="7" class="empty">Nenhuma demanda encontrada</td></tr>';
 }
 // Sort
 function srt(t,col){
